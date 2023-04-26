@@ -12,6 +12,8 @@ View at your own disgression
 
 from math import floor
 
+xscale = 2
+yscale = 1
 '''
 Class line, created in order to make stuff more abstract.
 
@@ -114,33 +116,33 @@ def render_line(line:Line, ascii_render:list) -> str:
             ascii_render[row] = row_edit # Saves the new render of the row
 
     elif line.type == 1: # Horizontal line handling
-        if len(ascii_render) <= line.origin: 
-            for i in range(len(ascii_render) - 1, line.origin):
+        if len(ascii_render) <= line.origin * yscale: 
+            for i in range(len(ascii_render) - 1, line.origin * yscale):
                 ascii_render.append("")
 
         row_edit = "" 
 
-        if len(ascii_render[line.origin]) <= line.endX: 
-            for column in range(0, len(ascii_render[line.origin])):
-                if column >= line.begX and line.endX >= column:
-                    row_edit += "■"
+        if len(ascii_render[line.origin * yscale]) <= line.endX * xscale: 
+            for column in range(0, len(ascii_render[line.origin * yscale]), xscale):
+                if column >= line.begX * xscale and line.endX * xscale >= column:
+                    row_edit += "■" + " " * (xscale - 1)
                 else:
-                    row_edit += ascii_render[line.origin][column]
+                    row_edit += ascii_render[line.origin * yscale][column] + " " * (xscale - 1)
             
-            for column in range(len(ascii_render[line.origin]), line.endX + 1):
-                if column >= line.begX and line.endX >= column:
-                    row_edit += "■"
+            for column in range(len(ascii_render[line.origin * yscale]), line.endX * xscale + 1, xscale):
+                if column >= line.begX * xscale and line.endX * xscale >= column:
+                    row_edit += "■" + " " * (xscale - 1)
                 else:
-                    row_edit += " "
+                    row_edit += " " * xscale
 
         else:
-            for column in range(0, len(ascii_render[line.origin])):
-                if column >= line.begX and line.endX >= column:
-                    row_edit += "■"
+            for column in range(0, len(ascii_render[line.origin * yscale]), xscale):
+                if column >= line.begX * xscale and line.endX * xscale >= column:
+                    row_edit += "■" + " " * (xscale - 1)
                 else:
-                    row_edit += ascii_render[line.origin][column]
+                    row_edit += ascii_render[line.origin * yscale][column] + " " * (xscale - 1)
 
-        ascii_render[line.origin] = row_edit
+        ascii_render[line.origin * yscale] = row_edit
     
     elif line.type == 2: # Vertical line handling
         if len(ascii_render) <= line.endY:
