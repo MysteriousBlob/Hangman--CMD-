@@ -11,6 +11,8 @@ View at your own disgression
 '''
 
 from math import floor
+from random import choice
+from os import system
 
 '''
 Class line, created in order to make stuff more abstract.
@@ -78,7 +80,7 @@ I AM TRYING MY HARDEST TO EXPLAIN THE MATH IN THE COMMENTS
 '''
 def render_line(line:Line, ascii_render:list) -> str:
     if line.type == 0: # Linear line handling
-        if len(ascii_render) <= line.endY: # Size management (2D vertical expension)
+        if len(ascii_render) <= max(line.endY, line.begY): # Size management (2D vertical expension)
             for i in range(len(ascii_render) - 1, max(line.endY, line.begY)):
                 ascii_render.append("")
 
@@ -230,20 +232,151 @@ def scale(ascii_render:list) -> list:
 
     return ascii_render
 
-def_shift = 20
 
-head = [Line(begX=0, begY=0, endX=10, endY=0, shiftX=def_shift), Line(begX=0, begY=0, endX=10, endY=0, shiftX=def_shift, shiftY=10), Line(begX=0, begY=0, endX=0, endY=10, shiftX=def_shift), Line(begX=0, begY=0, endX=0, endY=10, shiftX=def_shift+10)]
-body = [Line(begX=5, begY=11, endX=5, endY=21, shiftX=def_shift)]
-hands = [Line(begX=0, begY=19, endX=5, endY=14, shiftX=def_shift), Line(begX=0, begY=14, endX=5, endY=19, shiftX=def_shift+5)]
-legs = [Line(begX=0, begY=19, endX=5, endY=14, shiftX=def_shift, shiftY=8), Line(begX=0, begY=14, endX=5, endY=19, shiftX=def_shift+5, shiftY=8)]
-eyes = [Line(begX=3, begY=2, endX=3, endY=5, shiftX=def_shift), Line(begX=3, begY=2, endX=3, endY=5, shiftX=def_shift+4)]
-mouth = [Line(begX=3, begY=8, endX=4, endY=7, shiftX=def_shift), Line(begX=6, begY=7, endX=7, endY=8, shiftX=def_shift), Line(begX=4, begY=7, endX=6, endY=7, shiftX=def_shift)]
+'''-----------------------------------'''
 
-stickman = []
+def_shiftY = 2
+def_shiftX = 20
 
-ascii_render = renderer(head + body + hands + legs + eyes + mouth, ["Attempts:5"] + ["" for i in range(30)])
+head = [Line(begX=0, begY=0, endX=10, endY=0, shiftX=def_shiftX, shiftY=def_shiftY), Line(begX=0, begY=0, endX=10, endY=0, shiftX=def_shiftX, shiftY=10+def_shiftY), 
+        Line(begX=0, begY=0, endX=0, endY=10, shiftX=def_shiftX, shiftY=def_shiftY), Line(begX=0, begY=0, endX=0, endY=10, shiftX=def_shiftX+10, shiftY=def_shiftY)]
 
-ascii_render = scale(ascii_render)
+body = [Line(begX=5, begY=11, endX=5, endY=21, shiftX=def_shiftX, shiftY=def_shiftY)]
 
-for i in ascii_render:
-    print(i)
+hands = [Line(begX=0, begY=19, endX=5, endY=14, shiftX=def_shiftX, shiftY=def_shiftY), Line(begX=0, begY=14, endX=5, endY=19, shiftX=def_shiftX+5, shiftY=def_shiftY)]
+
+legs = [Line(begX=0, begY=19, endX=5, endY=14, shiftX=def_shiftX, shiftY=8+def_shiftY), 
+        Line(begX=0, begY=14, endX=5, endY=19, shiftX=def_shiftX+5, shiftY=8+def_shiftY)]
+
+eyes = [Line(begX=3, begY=2, endX=3, endY=5, shiftX=def_shiftX, shiftY=def_shiftY), Line(begX=3, begY=2, endX=3, endY=5, shiftX=def_shiftX+4, shiftY=def_shiftY)]
+
+sad = [Line(begX=3, begY=8, endX=4, endY=7, shiftX=def_shiftX, shiftY=def_shiftY), Line(begX=6, begY=7, endX=7, endY=8, shiftX=def_shiftX, shiftY=def_shiftY), 
+         Line(begX=4, begY=7, endX=6, endY=7, shiftX=def_shiftX, shiftY=def_shiftY)]
+
+smile = [Line(begX=3, begY=7, endX=4, endY=8, shiftX=def_shiftX, shiftY=def_shiftY), Line(begX=6, begY=8, endX=7, endY=7, shiftX=def_shiftX, shiftY=def_shiftY), 
+         Line(begX=4, begY=8, endX=6, endY=8, shiftX=def_shiftX, shiftY=def_shiftY)]
+
+drawing_steps = []
+drawing_steps += head + body + hands + legs + eyes + [sad]
+
+drawing_completed = []
+
+def draw(attempts_left) -> None:
+    ascii_render = renderer(drawing_completed, [f"Attempts:{attempts_left}"] + ["" for i in range(30)])
+
+    ascii_render = scale(ascii_render)
+
+    for i in ascii_render:
+        print(i,flush=False)
+
+    print(end="")
+
+def draw_no_args() -> None:
+    ascii_render = renderer(drawing_completed, [] + ["" for i in range(30)])
+
+    ascii_render = scale(ascii_render)
+
+    for i in ascii_render:
+        print(i,flush=False)
+
+    print(end="")
+
+while True:
+    attempts_left = 12
+    word = ""
+    attempted_letters = ""
+    game_won = False
+    drawing_completed = []
+
+    with open("hangman.txt") as file:
+        word = choice(file.readlines()).rstrip("\n\r")
+    
+    while attempts_left > 0:
+        system("cls")     
+        draw(attempts_left)
+
+        print("Attempted letters:", flush=False)
+        for i in range(len(attempted_letters) - 1):
+            print(attempted_letters[i], end=", ", flush=False)
+        if len(attempted_letters) > 0:
+            print(attempted_letters[len(attempted_letters)-1], end="", flush=False)
+        
+        print(end="\n\n",flush=False)
+
+        print("The word: ", end="", flush=False)
+
+        for i in range(len(word)):
+            if word[i] in attempted_letters:
+                print(word[i], end=" ", flush=False)  
+            else:
+                print("_", end=" ", flush=False)
+
+        print("\n", flush=False)
+        
+        while True:
+            guess = input("Enter a letter: ").strip()[0]
+
+            if guess in attempted_letters:
+                print('You already made this guess')
+            elif guess in word:
+                attempted_letters += guess
+                break
+            else:
+                attempted_letters += guess
+                attempts_left -= 1
+
+                if type(drawing_steps[-attempts_left]) != list:
+                    drawing_completed.append(drawing_steps[-attempts_left])
+                else:
+                    drawing_completed += drawing_steps[-attempts_left]
+
+                break
+
+        for i in set(word):
+            game_won = True
+            if i not in attempted_letters:
+                game_won = False
+                break
+
+        if game_won:
+            drawing_completed = []
+            drawing_completed += head + body + hands + legs + eyes + smile
+            system("cls")
+            draw_no_args()
+            print("Congrats! You win!")
+            print("Your word was:", word, end="\n\n")
+
+            input("Press enter to continue...")
+            
+            system("cls")
+            break
+        elif attempts_left <= 0:
+            system("cls")
+            draw_no_args()
+            print("What a bummer! You lose!")
+            print("Your word was:", word, end="\n\n")
+
+            input("Press enter to continue...")
+            
+            system("cls")
+            break
+
+
+    
+
+    while True:
+        c = input("Do you want to play again (y/n) ").strip().lower()[0]
+
+        if c == 'n':
+            system("cls")
+            break
+        elif c == 'y':
+            system("cls")
+            break
+        else:
+            print("Invalid choice!\n")
+    
+    if c == 'n':
+        break
+        
+        
